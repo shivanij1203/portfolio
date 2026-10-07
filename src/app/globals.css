@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
+/*
+  Palette sampled from the Museum of Ice Cream photo: the wall pink, the deep
+  maroon of the "Miami" lettering, and a warm paper ground. Neutrals carry a
+  slight plum bias so they sit with the pink instead of fighting it.
+*/
+@theme {
+  --color-paper: #f6f4f1;
+  --color-card: #fffdfb;
+  --color-sunk: #f0ece8;
+  --color-line: #e2dad6;
+  --color-line-soft: #ece5e1;
+  --color-ink: #17131a;
+  --color-muted: #6a5f68;
+  --color-dim: #948a93;
+  --color-pink: #d81b73;
+  --color-maroon: #6e1030;
+  --color-ok: #1f7a55;
+
+  --font-display: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-read: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  scroll-behavior: smooth;
+  background: var(--color-paper);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-pink);
+  color: #fff;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-pink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Pointer spotlight, driven by --mx / --my written from JS. */
+.spot {
+  position: relative;
+  isolation: isolate;
+  transition: border-color 0.3s ease;
+}
+.spot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-pink) 7%, transparent),
+    transparent 60%
+  );
+}
+.spot:hover::before {
+  opacity: 1;
+}
+
+.tabnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Marker underline: drawn like a highlighter pass, not a border. */
+.marker {
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-pink) 26%, transparent) 0,
+    color-mix(in srgb, var(--color-pink) 26%, transparent) 0.34em,
+    transparent 0.34em
+  );
 }

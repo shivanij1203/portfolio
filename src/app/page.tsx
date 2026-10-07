@@ -1,69 +1,143 @@
-import Image from "next/image";
+import Hero from "@/components/Hero";
+import { Magnetic, Reveal, Spotlight } from "@/components/Interactions";
+import { ROLES, STACK } from "@/lib/content";
+import { formatStars, getPullRequests, getStars } from "@/lib/github";
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Page() {
+  const [prs, stars] = await Promise.all([getPullRequests(), getStars()]);
+
+  const merged = prs.find((p) => p.number === 13539);
+  const openCount = prs.filter((p) => p.state === "open").length;
+  const onyxStars = formatStars(stars["onyx-dot-app/onyx"] ?? 0);
+
+  const receipts = [
+    {
+      figure: "#13539",
+      caption: `My diagnosis, merged into Onyx, a ${onyxStars}-star AI platform`,
+      href: merged?.url,
+      live: merged ? merged.state : undefined,
+    },
+    { figure: "25%", caption: "Response latency cut under high-volume load at Verizon" },
+    { figure: "Daily", caption: "A production AI assistant used by K-12 district leadership" },
+    {
+      figure: String(openCount),
+      caption: "Open pull requests in Onyx and django-ninja",
+      href: "https://github.com/shivanij1203",
+      live: "live from github",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      <Hero receipts={receipts} merged={merged} />
+
+      <section>
+        <div className="mx-auto max-w-6xl px-6 py-28 sm:px-8">
+          <Reveal>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-bold tracking-[-0.03em]">
+              Where I&rsquo;ve worked
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 flex flex-col">
+            {ROLES.map((role, i) => (
+              <Reveal key={role.org} delay={i * 0.05}>
+                <div className="grid gap-6 border-t border-line py-9 lg:grid-cols-[230px_1fr] lg:gap-10">
+                  <div className="font-mono text-[12px] leading-relaxed text-dim">
+                    <span className="block text-[13.5px] font-medium tracking-normal text-ink">
+                      {role.org}
+                    </span>
+                    {role.when}
+                    <br />
+                    {role.where}
+                  </div>
+                  <div>
+                    <h3 className="mb-4 text-[1.02rem] font-semibold tracking-tight">
+                      {role.title}
+                    </h3>
+                    <ul className="flex flex-col gap-2.5">
+                      {role.points.map((p, j) => (
+                        <li
+                          key={j}
+                          className="relative pl-5 text-[0.95rem] leading-relaxed text-muted before:absolute before:left-0 before:top-[0.68em] before:h-px before:w-2.5 before:bg-pink/60"
+                        >
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <section className="border-t border-line">
+        <div className="mx-auto max-w-6xl px-6 py-28 sm:px-8">
+          <Reveal>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3.4rem)] font-bold tracking-[-0.03em]">
+              What I work with
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 grid gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+            {STACK.map((s, i) => (
+              <Spotlight key={s.label}>
+                <div className="h-full bg-card p-6">
+                  <h3 className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.16em] text-dim">
+                    {s.label}
+                  </h3>
+                  <p className="text-[0.92rem] leading-relaxed text-muted">
+                    {s.items}
+                  </p>
+                  <span className="sr-only">{i}</span>
+                </div>
+              </Spotlight>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <footer className="border-t border-line">
+        <div className="mx-auto max-w-6xl px-6 py-28 sm:px-8">
+          <Reveal>
+            <h2 className="max-w-[14ch] font-display text-[clamp(2.4rem,7vw,5rem)] font-extrabold leading-[0.95] tracking-[-0.04em]">
+              Say hello.
+            </h2>
+            <p className="mt-6 max-w-[54ch] font-read text-[1.12rem] leading-relaxed text-muted">
+              I&rsquo;m finishing an MS in Artificial Intelligence and Business
+              Analytics at the University of South Florida. If any of the above
+              sounds like the kind of work you need done, I&rsquo;d like to hear
+              about it.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4 font-mono text-[13.5px]">
+              {[
+                { label: "Email", href: "mailto:shivanijagannatham@gmail.com" },
+                { label: "GitHub", href: "https://github.com/shivanij1203" },
+                {
+                  label: "LinkedIn",
+                  href: "https://www.linkedin.com/in/shivani-jagannatham/",
+                },
+              ].map((l) => (
+                <Magnetic key={l.label} strength={0.28}>
+                  <a
+                    href={l.href}
+                    target={l.href.startsWith("http") ? "_blank" : undefined}
+                    rel="noreferrer"
+                    className="border-b border-line pb-1 text-muted transition-colors hover:border-pink hover:text-ink"
+                  >
+                    {l.label}
+                  </a>
+                </Magnetic>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </footer>
+    </main>
   );
 }
